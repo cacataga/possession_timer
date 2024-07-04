@@ -28,10 +28,17 @@
       padding: 10px 20px;
       margin: 10px;
     }
+    .input-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+    }
     .input {
       font-size: 32px;
       width: 100px;
       text-align: center;
+      margin: 0 5px;
     }
   </style>
 </head>
@@ -41,11 +48,13 @@
   <div id="timer2" class="timer">0:00.0</div>
   <div id="percentage" class="timer">00%</div>
   <div class="label">自チーム : 相手チーム</div>
-  <input type="number" id="dial1" class="input" placeholder="0">
-  <input type="number" id="dial2" class="input" placeholder="0">
+  <div class="input-container">
+    <input type="number" id="dial1" class="input" placeholder="0">
+    <span>:</span>
+    <input type="number" id="dial2" class="input" placeholder="0">
+  </div>
   <button id="start" class="button">スタート</button>
   <button id="reset" class="button" disabled>終了</button>
-  <button id="enable" class="button">センサー有効化</button>
 
   <script src="tilt_timer.js"></script>
 </body>
