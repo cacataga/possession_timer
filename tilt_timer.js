@@ -71,28 +71,18 @@ function checkTilt() {
   if (!tiltDetectionEnabled) return;
 
   window.addEventListener('deviceorientation', (event) => {
-    const { beta, gamma } = event; // beta is the front/back tilt in degrees, gamma is the left/right tilt in degrees
+    const { beta } = event; // beta is the front/back tilt in degrees
 
-    if (Math.abs(gamma) > 45) { // 右に傾いたとき
+    if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
+      if (!timer2.timerRunning) timer2.startStopTimer();
+      document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
+    } else if (beta < -45 && beta > -135) { // 画面が後ろに45度から135度の間に傾いたとき
+      if (!timer1.timerRunning) timer1.startStopTimer();
+      document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
+    } else {
       if (timer1.timerRunning) timer1.startStopTimer();
       if (timer2.timerRunning) timer2.startStopTimer();
       document.body.style.backgroundColor = 'white';
-    } else {
-      if (beta < -45) { // 前に45度以上傾いたとき
-        if (!timer1.timerRunning) timer1.startStopTimer();
-        document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
-      } else if (timer1.timerRunning) {
-        timer1.startStopTimer();
-        document.body.style.backgroundColor = 'white';
-      }
-
-      if (beta > 45) { // 手前に45度以上傾いたとき
-        if (!timer2.timerRunning) timer2.startStopTimer();
-        document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
-      } else if (timer2.timerRunning) {
-        timer2.startStopTimer();
-        document.body.style.backgroundColor = 'white';
-      }
     }
   });
 
