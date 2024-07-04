@@ -90,7 +90,7 @@ function checkTilt(event) {
       timer2.stopTimer(); // タイマー2を停止
       timer1.startStopTimer();
     }
-    document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
+    document.body.style.backgroundColor = '#cc55ff'; // 変更された色
   } else {
     timer1.stopTimer();
     timer2.stopTimer();
