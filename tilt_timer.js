@@ -74,38 +74,35 @@ function updateTimerLabels() {
   percentageLabel.textContent = `${percentage.toFixed(0)}%`;
 }
 
-function checkTilt() {
+function checkTilt(event) {
   if (!tiltDetectionEnabled) return;
 
-  window.addEventListener('deviceorientation', (event) => {
-    const { beta } = event; // beta is the front/back tilt in degrees
+  const { beta } = event; // beta is the front/back tilt in degrees
 
-    if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
-      if (!timer2.timerRunning) {
-        timer1.stopTimer(); // タイマー1を停止
-        timer2.startStopTimer();
-      }
-      document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
-    } else if (beta >= -45 && beta <= 45) { // 画面が上向きのとき（プラスマイナス45度）
-      if (!timer1.timerRunning) {
-        timer2.stopTimer(); // タイマー2を停止
-        timer1.startStopTimer();
-      }
-      document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
-    } else {
-      if (timer1.timerRunning) timer1.startStopTimer();
-      if (timer2.timerRunning) timer2.startStopTimer();
-      document.body.style.backgroundColor = 'white';
+  if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
+    if (!timer2.timerRunning) {
+      timer1.stopTimer(); // タイマー1を停止
+      timer2.startStopTimer();
     }
-  });
+    document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
+  } else if (beta >= -45 && beta <= 45) { // 画面が上向きのとき（プラスマイナス45度）
+    if (!timer1.timerRunning) {
+      timer2.stopTimer(); // タイマー2を停止
+      timer1.startStopTimer();
+    }
+    document.body.style.backgroundColor = '#cc55ff'; // 薄い緑背景
+  } else {
+    timer1.stopTimer();
+    timer2.stopTimer();
+    document.body.style.backgroundColor = 'white';
+  }
 
   updateTimerLabels();
-  setTimeout(checkTilt, 100);
 }
 
 startButton.addEventListener('click', () => {
   tiltDetectionEnabled = true;
-  checkTilt();
+  window.addEventListener('deviceorientation', checkTilt);
   startButton.disabled = true;
   resetButton.disabled = false;
 });
@@ -113,6 +110,7 @@ startButton.addEventListener('click', () => {
 resetButton.addEventListener('click', () => {
   if (resetButton.textContent === '終了') {
     tiltDetectionEnabled = false;
+    window.removeEventListener('deviceorientation', checkTilt);
     timer1.resetTimer();
     timer2.resetTimer();
     startButton.disabled = false;
