@@ -1,4 +1,4 @@
-﻿// tilt_timer.js
+// tilt_timer.js
 
 class TiltTimer {
   constructor() {
@@ -39,6 +39,7 @@ const timer2Label = document.getElementById('timer2');
 const percentageLabel = document.getElementById('percentage');
 const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
+const enableButton = document.getElementById('enable');
 const datetimeLabel = document.getElementById('datetime');
 let tiltDetectionEnabled = false;
 
@@ -124,6 +125,18 @@ resetButton.addEventListener('click', () => {
     timer2Label.textContent = '0:00.0';
     percentageLabel.textContent = '00%';
     document.body.style.backgroundColor = 'white';
+  }
+});
+
+enableButton.addEventListener('click', () => {
+  if (typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission().then(permissionState => {
+      if (permissionState === 'granted') {
+        enableButton.style.display = 'none';
+      }
+    }).catch(console.error);
+  } else {
+    enableButton.style.display = 'none';
   }
 });
 
