@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual Tilt Timer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background-color: white;
+    }
+    .label {
+      font-size: 20px;
+      text-align: center;
+    }
+    .timer {
+      font-size: 48px;
+      text-align: center;
+    }
+    .button {
+      font-size: 32px;
+      padding: 10px 20px;
+      margin: 10px;
+    }
+    .input {
+      font-size: 32px;
+      width: 100px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="datetime" class="label"></div>
+  <div id="timer1" class="timer">0:00.0</div>
+  <div id="timer2" class="timer">0:00.0</div>
+  <div id="percentage" class="timer">00%</div>
+  <div class="label">自チーム : 相手チーム</div>
+  <input type="number" id="dial1" class="input" placeholder="0">
+  <input type="number" id="dial2" class="input" placeholder="0">
+  <button id="start" class="button">スタート</button>
+  <button id="reset" class="button" disabled>終了</button>
+
+  <script src="tilt_timer.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+﻿// tilt_timer.js
+
+class TiltTimer {
+  constructor() {
+    this.timerRunning = false;
+    this.startTime = 0;
+    this.totalTime = 0;
+  }
+
+  startStopTimer() {
+    if (!this.timerRunning) {
+      this.timerRunning = true;
+      this.startTime = Date.now();
+    } else {
+      this.timerRunning = false;
+      this.totalTime += Date.now() - this.startTime;
+    }
+  }
+
+  getTotalTime() {
+    if (this.timerRunning) {
+      return this.totalTime + (Date.now() - this.startTime);
+    }
+    return this.totalTime;
+  }
+
+  resetTimer() {
+    this.timerRunning = false;
+    this.startTime = 0;
+    this.totalTime = 0;
+  }
+}
+
+const timer1 = new TiltTimer();
+const timer2 = new TiltTimer();
+
+const timer1Label = document.getElementById('timer1');
+const timer2Label = document.getElementById('timer2');
+const percentageLabel = document.getElementById('percentage');
+const startButton = document.getElementById('start');
+const resetButton = document.getElementById('reset');
+const datetimeLabel = document.getElementById('datetime');
+let tiltDetectionEnabled = false;
+
+function updateDateTime() {
+  const currentDatetime = new Date().toLocaleString('ja-JP');
+  datetimeLabel.textContent = currentDatetime;
+  setTimeout(updateDateTime, 60000);
+}
+
+function updateTimerLabels() {
+  const totalTime1 = timer1.getTotalTime() / 1000;
+  const minutes1 = Math.floor(totalTime1 / 60);
+  const seconds1 = Math.floor(totalTime1 % 60);
+  const tenths1 = Math.floor((totalTime1 * 10) % 10);
+  timer1Label.textContent = `${minutes1}:${seconds1.toString().padStart(2, '0')}.${tenths1}`;
+
+  const totalTime2 = timer2.getTotalTime() / 1000;
+  const minutes2 = Math.floor(totalTime2 / 60);
+  const seconds2 = Math.floor(totalTime2 % 60);
+  const tenths2 = Math.floor((totalTime2 * 10) % 10);
+  timer2Label.textContent = `${minutes2}:${seconds2.toString().padStart(2, '0')}.${tenths2}`;
+
+  const totalTime = totalTime1 + totalTime2;
+  const percentage = totalTime > 0 ? (totalTime1 / totalTime) * 100 : 0;
+  percentageLabel.textContent = `${percentage.toFixed(0)}%`;
+}
+
+function checkTilt() {
+  if (!tiltDetectionEnabled) return;
+
+  window.addEventListener('deviceorientation', (event) => {
+    const { beta, gamma } = event; // beta is the front/back tilt in degrees, gamma is the left/right tilt in degrees
+
+    if (Math.abs(gamma) > 45) { // 右に傾いたとき
+      if (timer1.timerRunning) timer1.startStopTimer();
+      if (timer2.timerRunning) timer2.startStopTimer();
+      document.body.style.backgroundColor = 'white';
+    } else {
+      if (beta < -45) { // 前に45度以上傾いたとき
+        if (!timer1.timerRunning) timer1.startStopTimer();
+        document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
+      } else if (timer1.timerRunning) {
+        timer1.startStopTimer();
+        document.body.style.backgroundColor = 'white';
+      }
+
+      if (beta > 45) { // 手前に45度以上傾いたとき
+        if (!timer2.timerRunning) timer2.startStopTimer();
+        document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
+      } else if (timer2.timerRunning) {
+        timer2.startStopTimer();
+        document.body.style.backgroundColor = 'white';
+      }
+    }
+  });
+
+  updateTimerLabels();
+  setTimeout(checkTilt, 100);
+}
+
+startButton.addEventListener('click', () => {
+  tiltDetectionEnabled = true;
+  checkTilt();
+  startButton.disabled = true;
+  resetButton.disabled = false;
+});
+
+resetButton.addEventListener('click', () => {
+  if (resetButton.textContent === '終了') {
+    tiltDetectionEnabled = false;
+    timer1.resetTimer();
+    timer2.resetTimer();
+    startButton.disabled = false;
+    resetButton.textContent = 'リセット';
+    document.body.style.backgroundColor = 'white';
+  } else {
+    timer1.resetTimer();
+    timer2.resetTimer();
+    startButton.disabled = false;
+    resetButton.disabled = true;
+    resetButton.textContent = '終了';
+    timer1Label.textContent = '0:00.0';
+    timer2Label.textContent = '0:00.0';
+    percentageLabel.textContent = '00%';
+    document.body.style.backgroundColor = 'white';
+  }
+});
+
+updateDateTime();
