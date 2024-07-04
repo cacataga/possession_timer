@@ -17,6 +17,13 @@ class TiltTimer {
     }
   }
 
+  stopTimer() {
+    if (this.timerRunning) {
+      this.timerRunning = false;
+      this.totalTime += Date.now() - this.startTime;
+    }
+  }
+
   getTotalTime() {
     if (this.timerRunning) {
       return this.totalTime + (Date.now() - this.startTime);
@@ -74,10 +81,16 @@ function checkTilt() {
     const { beta } = event; // beta is the front/back tilt in degrees
 
     if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
-      if (!timer2.timerRunning) timer2.startStopTimer();
+      if (!timer2.timerRunning) {
+        timer1.stopTimer(); // タイマー1を停止
+        timer2.startStopTimer();
+      }
       document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
     } else if (beta >= -45 && beta <= 45) { // 画面が上向きのとき（プラスマイナス45度）
-      if (!timer1.timerRunning) timer1.startStopTimer();
+      if (!timer1.timerRunning) {
+        timer2.stopTimer(); // タイマー2を停止
+        timer1.startStopTimer();
+      }
       document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
     } else {
       if (timer1.timerRunning) timer1.startStopTimer();
