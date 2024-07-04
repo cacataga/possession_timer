@@ -76,9 +76,9 @@ function checkTilt() {
     if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
       if (!timer2.timerRunning) timer2.startStopTimer();
       document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
-    } else if (beta < 45 && beta > -45) { // 画面が垂直±45度の範囲にあるとき
+    } else if (beta >= -45 && beta <= 45) { // 画面が上向きのとき（プラスマイナス45度）
       if (!timer1.timerRunning) timer1.startStopTimer();
-      document.body.style.backgroundColor = '#cc00ff'; // 薄い緑背景
+      document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
     } else {
       if (timer1.timerRunning) timer1.startStopTimer();
       if (timer2.timerRunning) timer2.startStopTimer();
