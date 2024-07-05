@@ -48,6 +48,8 @@ const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
 const enableButton = document.getElementById('enable');
 const datetimeLabel = document.getElementById('datetime');
+const dial1 = document.getElementById('dial1');
+const dial2 = document.getElementById('dial2');
 let tiltDetectionEnabled = false;
 
 function updateDateTime() {
@@ -104,6 +106,16 @@ function checkTilt(event) {
 
   updateTimerLabels();
 }
+
+function adjustValue(inputElement, adjustment) {
+  const currentValue = parseInt(inputElement.value) || 0;
+  inputElement.value = currentValue + adjustment;
+}
+
+document.getElementById('decreaseDial1').addEventListener('click', () => adjustValue(dial1, -1));
+document.getElementById('increaseDial1').addEventListener('click', () => adjustValue(dial1, 1));
+document.getElementById('decreaseDial2').addEventListener('click', () => adjustValue(dial2, -1));
+document.getElementById('increaseDial2').addEventListener('click', () => adjustValue(dial2, 1));
 
 startButton.addEventListener('click', () => {
   tiltDetectionEnabled = true;
