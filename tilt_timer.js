@@ -130,7 +130,7 @@ resetButton.addEventListener('click', () => {
     window.removeEventListener('deviceorientation', checkTilt);
     timer1.resetTimer();
     timer2.resetTimer();
-    startButton.disabled = false;
+    startButton.disabled = true;
     resetButton.textContent = 'リセット';
     dial1.value = 11; // dial1の値をリセット
     dial2.value = 11; // dial2の値をリセット
