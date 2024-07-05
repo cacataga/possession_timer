@@ -34,9 +34,11 @@
     }
     .input {
       font-size: 28px;
-      width: 100px;
       text-align: center;
       margin: 0 10px;
+    }
+    .input-wide {
+      width: 80%;
     }
     .small-button {
       font-size: 25px;
@@ -47,21 +49,21 @@
 <body>
   <div id="datetime" class="label"></div>
   <div class="label">相手チーム名↓</div>
-  <input type="text" id="opponent" class="input" placeholder="">
+  <input type="text" id="opponent" class="input input-wide" placeholder="">
   <div id="timer1" class="timer">0:00.0</div>
   <div id="timer2" class="timer">0:00.0</div>
   <div id="percentage" class="timer">00%</div>
   <div class="label">自チーム内野数↓</div>
   <div class="input-container">
-    <button class="small-button" id="increaseDial1">+</button>
-    <input type="number" id="dial1" class="input" placeholder="0" value="11">
     <button class="small-button" id="decreaseDial1">-</button>
+    <input type="number" id="dial1" class="input" placeholder="0" value="11">
+    <button class="small-button" id="increaseDial1">+</button>
   </div>
   <div class="label">相手チーム内野数↓</div>
   <div class="input-container">
-    <button class="small-button" id="increaseDial2">+</button>
-    <input type="number" id="dial2" class="input" placeholder="0" value="11">
     <button class="small-button" id="decreaseDial2">-</button>
+    <input type="number" id="dial2" class="input" placeholder="0" value="11">
+    <button class="small-button" id="increaseDial2">+</button>
   </div>
   <button id="start" class="button">スタート</button>
   <button id="reset" class="button" disabled>終了</button>
