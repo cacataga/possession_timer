@@ -138,7 +138,7 @@ resetButton.addEventListener('click', () => {
   } else {
     timer1.resetTimer();
     timer2.resetTimer();
-    startButton.disabled = true;
+    startButton.disabled = false;
     resetButton.disabled = true;
     resetButton.textContent = '終了';
     timer1Label.textContent = '0:00.0';
