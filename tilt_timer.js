@@ -77,9 +77,14 @@ function updateTimerLabels() {
 function checkTilt(event) {
   if (!tiltDetectionEnabled) return;
 
-  const { beta } = event; // beta is the front/back tilt in degrees
+  const { beta, gamma } = event; // beta is the front/back tilt in degrees, gamma is the left/right tilt in degrees
+  const rightTiltThreshold = 45; // 左右に傾けた時の閾値
 
-  if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
+  if (gamma < -rightTiltThreshold || gamma > rightTiltThreshold) { // 左右に傾いたとき
+    if (timer1.timerRunning) timer1.stopTimer();
+    if (timer2.timerRunning) timer2.stopTimer();
+    document.body.style.backgroundColor = 'white';
+  } else if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
     if (!timer2.timerRunning) {
       timer1.stopTimer(); // タイマー1を停止
       timer2.startStopTimer();
@@ -90,7 +95,7 @@ function checkTilt(event) {
       timer2.stopTimer(); // タイマー2を停止
       timer1.startStopTimer();
     }
-    document.body.style.backgroundColor = '#cc55ff'; // 変更された色
+    document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
   } else {
     timer1.stopTimer();
     timer2.stopTimer();
