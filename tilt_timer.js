@@ -53,7 +53,7 @@ const dial2 = document.getElementById('dial2');
 let tiltDetectionEnabled = false;
 
 function updateDateTime() {
-  const currentDatetime = new Date().toLocaleString('ja-JP');
+  const currentDatetime = new Date().toLocaleString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
   datetimeLabel.textContent = currentDatetime;
   setTimeout(updateDateTime, 60000);
 }
@@ -138,7 +138,7 @@ resetButton.addEventListener('click', () => {
   } else {
     timer1.resetTimer();
     timer2.resetTimer();
-    startButton.disabled = false;
+    startButton.disabled = true;
     resetButton.disabled = true;
     resetButton.textContent = '終了';
     timer1Label.textContent = '0:00.0';
@@ -155,10 +155,12 @@ enableButton.addEventListener('click', () => {
     DeviceMotionEvent.requestPermission().then(permissionState => {
       if (permissionState === 'granted') {
         enableButton.style.display = 'none';
+        startButton.disabled = false; // センサー有効化後にスタートボタンを有効化
       }
     }).catch(console.error);
   } else {
     enableButton.style.display = 'none';
+    startButton.disabled = false; // センサー有効化後にスタートボタンを有効化
   }
 });
 
