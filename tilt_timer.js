@@ -1,22 +1,23 @@
 // tilt_timer.js
 
 class TiltTimer {
-  constructor() {
+  constructor(team) { // team パラメータを追加
     this.timerRunning = false;
     this.startTime = 0;
     this.totalTime = 0;
-    this.records = []; // この行を追加
+    this.records = [];
+    this.team = team; // この行を追加
   }
 
   startStopTimer() {
     if (!this.timerRunning) {
       this.timerRunning = true;
       this.startTime = Date.now();
-      this.records.push({ time: this.startTime, status: 'start' }); // この行を追加
+      this.records.push({ time: this.startTime, status: 'start' });
     } else {
       this.timerRunning = false;
       this.totalTime += Date.now() - this.startTime;
-      this.records.push({ time: Date.now(), status: 'stop' }); // この行を追加
+      this.records.push({ time: Date.now(), status: 'stop', duration: Date.now() - this.startTime });
     }
   }
 
@@ -24,7 +25,7 @@ class TiltTimer {
     if (this.timerRunning) {
       this.timerRunning = false;
       this.totalTime += Date.now() - this.startTime;
-      this.records.push({ time: Date.now(), status: 'stop' }); // この行を追加
+      this.records.push({ time: Date.now(), status: 'stop', duration: Date.now() - this.startTime });
     }
   }
 
@@ -39,16 +40,16 @@ class TiltTimer {
     this.timerRunning = false;
     this.startTime = 0;
     this.totalTime = 0;
-    this.records = []; // この行を追加
+    this.records = [];
   }
 
-  getRecords() { // この関数を追加
+  getRecords() {
     return this.records;
   }
 }
 
-const timer1 = new TiltTimer();
-const timer2 = new TiltTimer();
+const timer1 = new TiltTimer('自');
+const timer2 = new TiltTimer('相手');
 
 const timer1Label = document.getElementById('timer1');
 const timer2Label = document.getElementById('timer2');
@@ -56,8 +57,8 @@ const percentageLabel = document.getElementById('percentage');
 const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
 const enableButton = document.getElementById('enable');
-const generateReportButton = document.getElementById('generateReport'); // この行を追加
-const chartContainer = document.getElementById('chartContainer'); // この行を追加
+const generateReportButton = document.getElementById('generateReport');
+const chartContainer = document.getElementById('chartContainer');
 const dial1 = document.getElementById('dial1');
 const dial2 = document.getElementById('dial2');
 let tiltDetectionEnabled = false;
@@ -98,13 +99,13 @@ function checkTilt(event) {
     document.body.style.backgroundColor = 'white';
   } else if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
     if (!timer2.timerRunning) {
-      timer1.stopTimer(); // タイマー1を停止
+      timer1.stopTimer();
       timer2.startStopTimer();
     }
     document.body.style.backgroundColor = '#ffcccc'; // 薄い赤背景
   } else if (beta >= -45 && beta <= 45) { // 画面が上向きのとき（プラスマイナス45度）
     if (!timer1.timerRunning) {
-      timer2.stopTimer(); // タイマー2を停止
+      timer2.stopTimer();
       timer1.startStopTimer();
     }
     document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
@@ -145,7 +146,7 @@ resetButton.addEventListener('click', () => {
     dial1.value = 11; // dial1の値をリセット
     dial2.value = 11; // dial2の値をリセット
     document.body.style.backgroundColor = 'white';
-    generateReportButton.classList.remove('hidden'); // この行を追加
+    generateReportButton.classList.remove('hidden');
   } else {
     timer1.resetTimer();
     timer2.resetTimer();
@@ -166,12 +167,12 @@ enableButton.addEventListener('click', () => {
     DeviceMotionEvent.requestPermission().then(permissionState => {
       if (permissionState === 'granted') {
         enableButton.style.display = 'none';
-        startButton.disabled = false; // センサー有効化後にスタートボタンを有効化
+        startButton.disabled = false;
       }
     }).catch(console.error);
   } else {
     enableButton.style.display = 'none';
-    startButton.disabled = false; // センサー有効化後にスタートボタンを有効化
+    startButton.disabled = false;
   }
 });
 
@@ -182,67 +183,43 @@ generateReportButton.addEventListener('click', () => {
 function generateReport() {
   const timer1Records = timer1.getRecords();
   const timer2Records = timer2.getRecords();
-  const dial1Value = parseInt(dial1.value);
-  const dial2Value = parseInt(dial2.value);
-  const diff = dial1Value - dial2Value;
 
-  const data = {
-    labels: [],
-    datasets: [
-      {
-        label: 'タイマー1',
-        data: [],
-        backgroundColor: 'rgba(0, 255, 0, 0.5)',
-        borderColor: 'rgba(0, 255, 0, 1)',
-        borderWidth: 1,
-        fill: false,
-      },
-      {
-        label: 'タイマー2',
-        data: [],
-        backgroundColor: 'rgba(255, 0, 0, 0.5)',
-        borderColor: 'rgba(255, 0, 0, 1)',
-        borderWidth: 1,
-        fill: false,
-      },
-      {
-        label: '内野数の差',
-        data: [],
-        backgroundColor: 'rgba(0, 0, 255, 0.5)',
-        borderColor: 'rgba(0, 0, 255, 1)',
-        borderWidth: 1,
-        fill: false,
-      },
-    ]
-  };
+  const reportData = [];
+  let currentTeam = null;
+  let currentStartTime = null;
 
-  const startTime = timer1Records.length > 0 ? timer1Records[0].time : Date.now();
-  const endTime = timer1Records.length > 0 ? timer1Records[timer1Records.length - 1].time : Date.now();
-  const interval = (endTime - startTime) / 100;
+  // Merge and sort records
+  const allRecords = [...timer1Records.map(r => ({ ...r, team: '自' })), ...timer2Records.map(r => ({ ...r, team: '相手' }))];
+  allRecords.sort((a, b) => a.time - b.time);
 
-  for (let i = 0; i <= 100; i++) {
-    const currentTime = startTime + interval * i;
-    data.labels.push(new Date(currentTime).toLocaleTimeString());
-    const timer1Status = timer1Records.find(record => record.time <= currentTime && record.status === 'start') ? 1 : 0;
-    const timer2Status = timer2Records.find(record => record.time <= currentTime && record.status === 'start') ? 1 : 0;
-    data.datasets[0].data.push(timer1Status);
-    data.datasets[1].data.push(timer2Status);
-    data.datasets[2].data.push(diff);
-  }
+  allRecords.forEach(record => {
+    if (record.status === 'start') {
+      currentTeam = record.team;
+      currentStartTime = record.time;
+    } else if (record.status === 'stop' && currentTeam === record.team) {
+      reportData.push({ team: currentTeam, duration: (record.time - currentStartTime) / 1000 });
+      currentTeam = null;
+      currentStartTime = null;
+    }
+  });
 
   chartContainer.classList.remove('hidden');
+  drawRectangles(reportData);
+}
 
-  const ctx = document.getElementById('chart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: data,
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
+function drawRectangles(reportData) {
+  const canvas = document.getElementById('chart');
+  const ctx = canvas.getContext('2d');
+  const height = 20;
+  let x = 0;
+
+  canvas.width = reportData.reduce((acc, data) => acc + data.duration, 0) * 10;
+  canvas.height = height;
+
+  reportData.forEach(data => {
+    ctx.fillStyle = data.team === '自' ? 'green' : 'red';
+    ctx.fillRect(x, 0, data.duration * 10, height);
+    x += data.duration * 10;
   });
 }
 
@@ -268,4 +245,4 @@ setInterval(() => {
   if (!wakeLock) {
     requestWakeLock();
   }
-}, 120000); // 2分ごとにスリープ防止を試みる
+}, 120000);
