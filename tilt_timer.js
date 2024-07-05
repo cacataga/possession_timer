@@ -132,6 +132,8 @@ resetButton.addEventListener('click', () => {
     timer2.resetTimer();
     startButton.disabled = false;
     resetButton.textContent = 'リセット';
+    dial1.value = 11; // dial1の値をリセット
+    dial2.value = 11; // dial2の値をリセット
     document.body.style.backgroundColor = 'white';
   } else {
     timer1.resetTimer();
@@ -142,6 +144,8 @@ resetButton.addEventListener('click', () => {
     timer1Label.textContent = '0:00.0';
     timer2Label.textContent = '0:00.0';
     percentageLabel.textContent = '00%';
+    dial1.value = 11; // dial1の値をリセット
+    dial2.value = 11; // dial2の値をリセット
     document.body.style.backgroundColor = 'white';
   }
 });
@@ -159,3 +163,25 @@ enableButton.addEventListener('click', () => {
 });
 
 updateDateTime();
+
+// スリープを防止するための設定
+let wakeLock = null;
+
+async function requestWakeLock() {
+  try {
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLock.addEventListener('release', () => {
+      console.log('Wake Lock was released');
+    });
+    console.log('Wake Lock is active');
+  } catch (err) {
+    console.error(`${err.name}, ${err.message}`);
+  }
+}
+
+// 定期的にスリープを防止する
+setInterval(() => {
+  if (!wakeLock) {
+    requestWakeLock();
+  }
+}, 120000); // 2分ごとにスリープ防止を試みる
