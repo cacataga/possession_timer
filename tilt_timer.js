@@ -5,15 +5,18 @@ class TiltTimer {
     this.timerRunning = false;
     this.startTime = 0;
     this.totalTime = 0;
+    this.records = []; // この行を追加
   }
 
   startStopTimer() {
     if (!this.timerRunning) {
       this.timerRunning = true;
       this.startTime = Date.now();
+      this.records.push({ time: this.startTime, status: 'start' }); // この行を追加
     } else {
       this.timerRunning = false;
       this.totalTime += Date.now() - this.startTime;
+      this.records.push({ time: Date.now(), status: 'stop' }); // この行を追加
     }
   }
 
@@ -21,6 +24,7 @@ class TiltTimer {
     if (this.timerRunning) {
       this.timerRunning = false;
       this.totalTime += Date.now() - this.startTime;
+      this.records.push({ time: Date.now(), status: 'stop' }); // この行を追加
     }
   }
 
@@ -35,6 +39,11 @@ class TiltTimer {
     this.timerRunning = false;
     this.startTime = 0;
     this.totalTime = 0;
+    this.records = []; // この行を追加
+  }
+
+  getRecords() { // この関数を追加
+    return this.records;
   }
 }
 
@@ -47,7 +56,8 @@ const percentageLabel = document.getElementById('percentage');
 const startButton = document.getElementById('start');
 const resetButton = document.getElementById('reset');
 const enableButton = document.getElementById('enable');
-const datetimeLabel = document.getElementById('datetime');
+const generateReportButton = document.getElementById('generateReport'); // この行を追加
+const chartContainer = document.getElementById('chartContainer'); // この行を追加
 const dial1 = document.getElementById('dial1');
 const dial2 = document.getElementById('dial2');
 let tiltDetectionEnabled = false;
@@ -128,13 +138,14 @@ resetButton.addEventListener('click', () => {
   if (resetButton.textContent === '終了') {
     tiltDetectionEnabled = false;
     window.removeEventListener('deviceorientation', checkTilt);
-    timer1.resetTimer();
-    timer2.resetTimer();
+    timer1.stopTimer();
+    timer2.stopTimer();
     startButton.disabled = true;
     resetButton.textContent = 'リセット';
     dial1.value = 11; // dial1の値をリセット
     dial2.value = 11; // dial2の値をリセット
     document.body.style.backgroundColor = 'white';
+    generateReportButton.classList.remove('hidden'); // この行を追加
   } else {
     timer1.resetTimer();
     timer2.resetTimer();
@@ -163,6 +174,77 @@ enableButton.addEventListener('click', () => {
     startButton.disabled = false; // センサー有効化後にスタートボタンを有効化
   }
 });
+
+generateReportButton.addEventListener('click', () => {
+  generateReport();
+});
+
+function generateReport() {
+  const timer1Records = timer1.getRecords();
+  const timer2Records = timer2.getRecords();
+  const dial1Value = parseInt(dial1.value);
+  const dial2Value = parseInt(dial2.value);
+  const diff = dial1Value - dial2Value;
+
+  const data = {
+    labels: [],
+    datasets: [
+      {
+        label: 'タイマー1',
+        data: [],
+        backgroundColor: 'rgba(0, 255, 0, 0.5)',
+        borderColor: 'rgba(0, 255, 0, 1)',
+        borderWidth: 1,
+        fill: false,
+      },
+      {
+        label: 'タイマー2',
+        data: [],
+        backgroundColor: 'rgba(255, 0, 0, 0.5)',
+        borderColor: 'rgba(255, 0, 0, 1)',
+        borderWidth: 1,
+        fill: false,
+      },
+      {
+        label: '内野数の差',
+        data: [],
+        backgroundColor: 'rgba(0, 0, 255, 0.5)',
+        borderColor: 'rgba(0, 0, 255, 1)',
+        borderWidth: 1,
+        fill: false,
+      },
+    ]
+  };
+
+  const startTime = timer1Records.length > 0 ? timer1Records[0].time : Date.now();
+  const endTime = timer1Records.length > 0 ? timer1Records[timer1Records.length - 1].time : Date.now();
+  const interval = (endTime - startTime) / 100;
+
+  for (let i = 0; i <= 100; i++) {
+    const currentTime = startTime + interval * i;
+    data.labels.push(new Date(currentTime).toLocaleTimeString());
+    const timer1Status = timer1Records.find(record => record.time <= currentTime && record.status === 'start') ? 1 : 0;
+    const timer2Status = timer2Records.find(record => record.time <= currentTime && record.status === 'start') ? 1 : 0;
+    data.datasets[0].data.push(timer1Status);
+    data.datasets[1].data.push(timer2Status);
+    data.datasets[2].data.push(diff);
+  }
+
+  chartContainer.classList.remove('hidden');
+
+  const ctx = document.getElementById('chart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: data,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
 
 updateDateTime();
 
