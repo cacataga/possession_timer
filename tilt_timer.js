@@ -86,7 +86,7 @@ function checkTilt(event) {
     if (timer1.timerRunning) timer1.stopTimer();
     if (timer2.timerRunning) timer2.stopTimer();
     document.body.style.backgroundColor = 'white';
-  } else if (beta > 45 && beta < 135) { // 画面が前に45度から135度の間に傾いたとき
+  } else if (beta > 45 && beta <= 135) { // 画面が前に45度から135度の間に傾いたとき
     if (!timer2.timerRunning) {
       timer1.stopTimer(); // タイマー1を停止
       timer2.startStopTimer();
@@ -106,6 +106,7 @@ function checkTilt(event) {
 
   updateTimerLabels();
 }
+
 
 function adjustValue(inputElement, adjustment) {
   const currentValue = parseInt(inputElement.value) || 0;
