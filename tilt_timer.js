@@ -83,7 +83,7 @@ function checkTilt(event) {
   const rightTiltThreshold = 45; // 左右に傾けた時の閾値
   const verticalThreshold = 10; // 垂直のときの閾値
 
-  if (gamma < -rightTiltThreshold || gamma > rightTiltThreshold) { // 左右に傾いたとき
+  if (Math.abs(gamma) > rightTiltThreshold && Math.abs(beta - 90) > verticalThreshold) { // 左右に大きく傾いたとき、かつ垂直でないとき
     if (timer1.timerRunning) timer1.stopTimer();
     if (timer2.timerRunning) timer2.stopTimer();
     document.body.style.backgroundColor = 'white';
@@ -98,15 +98,16 @@ function checkTilt(event) {
       timer2.stopTimer(); // タイマー2を停止
       timer1.startStopTimer();
     }
-    document.body.style.backgroundColor = '#ccccff'; // 薄い緑背景
+    document.body.style.backgroundColor = '#ccffcc'; // 薄い緑背景
   } else {
     timer1.stopTimer();
     timer2.stopTimer();
-    document.body.style.backgroundColor = 'yellow';
+    document.body.style.backgroundColor = 'white';
   }
 
   updateTimerLabels();
 }
+
 
 
 
